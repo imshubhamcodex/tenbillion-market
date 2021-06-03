@@ -33,7 +33,12 @@
       <!-- <v-navigation-drawer permanent> -->
       <v-list-item>
         <v-list-item-content>
-          <v-list-item-title class="title">Active Accounts</v-list-item-title>
+          <v-list-item-title
+            id="account-title"
+            class="title"
+            @click="showAccounts()"
+            >Active Accounts ▼</v-list-item-title
+          >
           <v-list-item-subtitle>{{ allUser.length }}</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -47,18 +52,30 @@
 
       <v-list-item>
         <v-list-item-content>
-          <v-list-item-title class="title" @click="changeCurrAmt()"
-            >Current Value</v-list-item-title
+          <v-list-item-title class="title">Return</v-list-item-title>
+          <v-list-item-subtitle style="color: green"
+            >₹ {{ profitAmt }} ({{ returnPercentage }} % )
+            ▲</v-list-item-subtitle
           >
-          <v-list-item-subtitle>₹ {{ CurrentVal }}</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
 
       <v-list-item>
         <v-list-item-content>
-          <v-list-item-title class="title">Return</v-list-item-title>
+          <v-list-item-title class="title" @click="changeCurrAmt()"
+            >Current Value</v-list-item-title
+          >
           <v-list-item-subtitle style="color: green"
-            >₹ {{ profitAmt }} ({{ returnPercentage }} %)</v-list-item-subtitle
+            >₹ {{ CurrentVal }}</v-list-item-subtitle
+          >
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-list-item>
+        <v-list-item-content>
+          <v-list-item-title class="title">Next Month Target</v-list-item-title>
+          <v-list-item-subtitle style="color: indigo"
+            >₹ {{ CurrentVal * 0.1 }}</v-list-item-subtitle
           >
         </v-list-item-content>
       </v-list-item>
@@ -100,16 +117,35 @@
                   >Regular:: ₹ {{ item.regular }}</v-list-item-title
                 >
                 <v-list-item-title class="overline"
-                  >Extra:: ₹ {{ item.extra }}</v-list-item-title
+                  >Lumpsum:: ₹ {{ item.extra }}</v-list-item-title
                 >
-                <v-list-item-title class="overline"
-                  >Total:: ₹ {{ item.total }}</v-list-item-title
-                >
+
                 <v-list-item-title class="overline" style="color: green"
                   >Return:: ₹ {{ item.returnAmt }}</v-list-item-title
                 >
-                <v-list-item-title class="overline" :class="{'red-class': item.isDue, 'green-class': !item.isDue }">
-                  Payment Due:: {{item.duePayment}}
+
+                <v-list-item-title class="overline" style="color: green"
+                  >Curr. value:: ₹
+                  {{ item.total + item.returnAmt }}</v-list-item-title
+                >
+
+                <v-list-item-title
+                  class="overline"
+                  :class="{
+                    'red-class': item.isDue,
+                    'green-class': !item.isDue,
+                  }"
+                >
+                  Payment Due:: {{ item.duePayment }}
+                </v-list-item-title>
+
+                <v-list-item-title
+                  :class="{
+                    'red-class': !item.isAccepted,
+                    ['green-class overline']: item.isAccepted,
+                  }"
+                >
+                  {{ item.acceptedTandC }}
                 </v-list-item-title>
 
                 <v-list-item-title class="overline">
@@ -128,9 +164,10 @@
           </v-list>
         </v-list-item>
       </v-list>
-      <div style="margin: 0 auto; display: block; width: 90%">
+      <div style="margin: 20px auto; display: block; width: 90%">
         <v-btn
           color="primary"
+          rounded
           style="width: 100%; margin-bottom: 10px"
           @click="logout()"
           >Log Out</v-btn
@@ -158,8 +195,8 @@
                 style="position: relative"
               >
                 <v-img
-                  :src="require('@/assets/payment.png')"
-                  height="220"
+                  :src="require('@/assets/paid.png')"
+                  height="250"
                   class="grey darken-4"
                 ></v-img>
                 <v-card-title class="title"> Unverified payments </v-card-title>
@@ -173,8 +210,8 @@
               <br />
               <v-card @click="openTimeLine()">
                 <v-img
-                  :src="require('@/assets/moneytree.png')"
-                  height="220"
+                  :src="require('@/assets/text.png')"
+                  height="250"
                   class="grey darken-4"
                 ></v-img>
                 <v-card-title class="title"> SIP Calculator </v-card-title>
@@ -183,10 +220,19 @@
               <v-card @click="gotoNotes()">
                 <v-img
                   :src="require('@/assets/notes.png')"
-                  height="220"
+                  height="250"
                   class="grey darken-4"
                 ></v-img>
                 <v-card-title class="title">Author's Notes </v-card-title>
+              </v-card>
+              <br />
+              <v-card @click="gotoTandC()">
+                <v-img
+                  :src="require('@/assets/tandc.png')"
+                  height="250"
+                  class="grey darken-4"
+                ></v-img>
+                <v-card-title class="title">Terms and Conditions </v-card-title>
               </v-card>
             </v-container>
 
@@ -367,7 +413,7 @@ export default {
       {
         text: 'SHUBHAM KUMAR',
         url:
-          'https://firebasestorage.googleapis.com/v0/b/data-auth-87e83.appspot.com/o/userImage%2FSHUBHAM%20KUMAR.png?alt=media&token=31ddeb3b-f550-4f84-bfa1-286f05f65c4b',
+          'https://firebasestorage.googleapis.com/v0/b/data-auth-87e83.appspot.com/o/userImage%2FSHUBHAM%20KUMAR.png?alt=media&token=0d39a528-eca4-46f1-ab3d-f3cf4509dc41',
       },
       {
         text: 'MANISH KUMAR',
@@ -387,37 +433,44 @@ export default {
     ], // ALL USER NAME INFO.TEXT
   }),
   methods: {
+    showAccounts() {
+      if (this.rerenderUserList) {
+        this.rerenderUserList = false
+        document.getElementById('account-title').textContent =
+          'Active Accounts ▼'
+      } else {
+        this.rerenderUserList = true
+        document.getElementById('account-title').textContent =
+          'Active Accounts ▲'
+      }
+    },
     showpaymentDue(email) {
       let Todaydate = new Date()
-      
-      let index = 0;
 
-      for(let i=0;i<this.items.length;i++){
-        if(this.items[i].email == email){
-          index = i;
-          break;
+      let index = 0
+
+      for (let i = 0; i < this.items.length; i++) {
+        if (this.items[i].email == email) {
+          index = i
+          break
         }
       }
 
       let lastPaymentDate = new Date(this.latestDateArr[index].toDate())
 
       if (Todaydate.getTime() === lastPaymentDate.getTime()) {
-        console.log("Same date");
-        this.items[index].duePayment ="No"; 
-        this.items[index].isDue = false;
-        
+        console.log('Same date')
+        this.items[index].duePayment = 'No'
+        this.items[index].isDue = false
+      } else if (Todaydate.getTime() < lastPaymentDate.getTime()) {
+        console.log('lastPaymentDate is latest')
+        this.items[index].duePayment = 'No'
+        this.items[index].isDue = false
+      } else {
+        console.log('today is latest')
+        this.items[index].duePayment = 'YES'
+        this.items[index].isDue = true
       }
-      else if (Todaydate.getTime() < lastPaymentDate.getTime()) {
-        console.log("lastPaymentDate is latest");
-        this.items[index].duePayment ="No";
-        this.items[index].isDue = false;
-      }
-      else{
-        console.log("today is latest");
-        this.items[index].duePayment ="YES";
-        this.items[index].isDue = true;
-      }
-
     },
     drawerfun() {
       this.drawer = !this.drawer
@@ -455,6 +508,9 @@ export default {
     },
     gotoNotes() {
       this.$router.push('/takeNotes/index')
+    },
+    gotoTandC(){
+      this.$router.push('/TandC/index')
     },
     changeCurrAmt() {
       let accUID = prompt('Please Enter UID')
@@ -633,7 +689,7 @@ export default {
               regular: res.data().regular,
               extra: res.data().extra,
               total: res.data().total,
-              duePayment:"Null"
+              duePayment: 'Null',
             }
 
             this.items.push(x) // all users info
@@ -642,6 +698,34 @@ export default {
             console.log(error.message)
           })
       }
+
+      // to set tandc
+
+      await this.$fireStore
+        .collection('allUsers')
+        .get()
+        .then((res) => {
+          // let TandCArrLen = res.docs[0].data().TandC.length
+          res.docs.forEach((ele) => {
+            let TandCArrLen = ele.data().TandC.length
+            let totalAccepted = ele.data().total
+            let i = this.items.findIndex((x) => x.email == ele.id)
+
+            if (TandCArrLen == 9) {
+              this.items[i].acceptedTandC = 'Accepted all the T&C.'
+              this.items[i].isAccepted = true
+            } else {
+              if (totalAccepted == 0) {
+                this.items[i].acceptedTandC =
+                  'No T&C NOT accepted! (' + totalAccepted + '/' + 9 + ')'
+              } else {
+                this.items[i].acceptedTandC =
+                  'Few T&C NOT accepted! (' + totalAccepted + '/' + 9 + ')'
+              }
+              this.items[i].isAccepted = false
+            }
+          })
+        })
 
       var currAmt = parseInt(this.CurrentVal.replace(/,/g, ''))
 
@@ -655,13 +739,12 @@ export default {
         let returnPercentage =
           (parseInt(predictedProfit) / parseInt(total)) * 100
 
+        let indvAmt =
+          (currAmt - parseInt(this.totalAmount)) / (this.items.length + 1)
 
-        let indvAmt = (currAmt - parseInt(this.totalAmount))/(this.items.length +1)
-
-        if(this.items[i].text=="ALOK KUMAR")
-        this.items[i].returnAmt = 2*indvAmt;
-        else
-        this.items[i].returnAmt = indvAmt;
+        if (this.items[i].text == 'ALOK KUMAR')
+          this.items[i].returnAmt = 2 * indvAmt
+        else this.items[i].returnAmt = indvAmt
 
         this.items[i].returnPercentage = returnPercentage.toFixed(2)
       }
@@ -669,6 +752,7 @@ export default {
       // console.log(this.items)
       this.returnPercentage = this.items[0].returnPercentage
       this.rerenderUserList = true
+      this.showAccounts()
 
       this.profitAmt = currAmt - parseInt(this.totalAmount)
     },
@@ -745,18 +829,17 @@ export default {
                   this.prevTransAll.push(x)
                 }
                 if (i == 0) {
-                    this.latestDateArr.push(res.data().date) // to get last paymentdate
-                  }
+                  this.latestDateArr.push(res.data().date) // to get last paymentdate
+                }
               })
               .catch(function (error) {
                 console.log(error.message)
               })
           }
         }
-        this.no_of_unverifiedPayments = this.prevTransAll.length;
-        this.showpaymentDue(arrMail[k]);
+        this.no_of_unverifiedPayments = this.prevTransAll.length
+        this.showpaymentDue(arrMail[k])
       }
-      
     },
   },
   async mounted() {
@@ -827,14 +910,14 @@ export default {
   border-radius: 5px !important;
 }
 
-.v-application .red-class{
-color:red;
-background: white !important;
+.v-application .red-class {
+  color: red;
+  background: transparent !important;
 }
 
-.v-application .green-class{
-color:green;
-background: white !important;
+.v-application .green-class {
+  color: green;
+  background: transparent !important;
 }
 @media (max-width: 1000px) {
   #nav-drawer {

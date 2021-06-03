@@ -67,7 +67,7 @@
           <v-container class="px-3" fluid>
             <v-radio-group v-model="radioGroup">
               <v-radio :label="`Regular`"></v-radio>
-              <v-radio :label="`Extra`"></v-radio>
+              <v-radio :label="`Lumpsum`"></v-radio>
             </v-radio-group>
           </v-container>
         </template>
@@ -158,7 +158,6 @@ export default {
     email: "",
     timeStamp: null,
     items: [
-      "500",
       "1000",
       "1500",
       "2000",

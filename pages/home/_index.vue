@@ -180,10 +180,7 @@
         <v-row justify="center" align="center">
           <v-col class="shrink">
             <!-- this is content/calender -->
-            <formInput
-              v-show="showCalenderAll"
-              v-bind:user="this.selectedUser"
-            />
+            <formInput v-if="showCalenderAll" v-bind:user="this.selectedUser" />
             <br />
             <v-alert v-show="showCalenderAll" dense type="info">
               <strong>Previous Transactions</strong>
@@ -433,6 +430,12 @@ export default {
     ], // ALL USER NAME INFO.TEXT
   }),
   methods: {
+    forceRerender() {
+      this.showCalenderAll = false
+      this.$nextTick().then(() => {
+        this.showCalenderAll = true
+      })
+    },
     showAccounts() {
       if (this.rerenderUserList) {
         this.rerenderUserList = false
@@ -509,7 +512,7 @@ export default {
     gotoNotes() {
       this.$router.push('/takeNotes/index')
     },
-    gotoTandC(){
+    gotoTandC() {
       this.$router.push('/TandC/index')
     },
     changeCurrAmt() {
@@ -562,7 +565,7 @@ export default {
       this.userUID = this.items[id].uid
       this.email = this.items[id].email
       this.drawer = false
-      this.showCalenderAll = true
+      this.forceRerender();
 
       for (let i = 0; i < this.items.length; i++) {
         if (this.items[i].id == id) {

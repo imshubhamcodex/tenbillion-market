@@ -182,9 +182,8 @@ export default {
         this.last_paid_date <=
         firebase.firestore.Timestamp.fromDate(new Date(val))
       ) {
-        return true;
-      }
-      else return false;
+        return true
+      } else return false
     },
     async submit() {
       let userInfo = this.user.toString().split('-')
@@ -338,6 +337,7 @@ export default {
     user: async function () {
       let userInfo = this.user.toString().split('-')
       this.email = userInfo[1]
+      this.uid = userInfo[0]
       document
         .getElementById('continue-btn')
         .classList.remove('v-btn--disabled')
@@ -358,10 +358,14 @@ export default {
     },
   },
   async mounted() {
+    this.uid = this.user.toString().split('-')[0]
     if (this.uid === null) {
       document.getElementById('continue-btn').classList += ' v-btn--disabled'
+    } else {
+      document.getElementById('continue-btn').classList.remove('v-btn--disabled')
     }
     console.log(this.user)
+    console.log(this.uid)
 
     let arrUser = this.user.split('-')
 
@@ -376,7 +380,7 @@ export default {
       .catch(function (error) {
         console.log(error.message)
       })
-  }
+  },
 }
 </script>
 

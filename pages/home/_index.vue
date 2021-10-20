@@ -169,7 +169,7 @@
       </v-list>
 
       <v-list dense nav class="drawer_options">
-        <v-list-item>
+        <v-list-item style="padding-bottom:50px">
           <!-- graph-->
           <h3
             id="loading-pie"
@@ -187,7 +187,7 @@
               position: absolute;
               transform: translate(-50%);
               left: 50%;
-              bottom:-30px
+              bottom:20px
             "
           >
             Amount contributed
@@ -987,6 +987,7 @@ export default {
       }
 
       document.getElementById('loading-curve').style.display = 'none'
+      document.getElementById('myChart').style.display = 'block'
       new Chart(document.getElementById('myChart'), config)
     },
     amountContribution() {
@@ -1038,7 +1039,9 @@ export default {
   },
   watch: {
     selectedUser: async function () {
+      document.getElementById('myChart').style.display = 'none'
       document.getElementById('curve').style.display = 'block'
+      document.getElementById('loading-curve').style.display = 'block'
       this.transID = []
       this.prevTrans = []
       await this.$fireStore

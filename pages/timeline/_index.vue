@@ -120,6 +120,7 @@ const COLORS = [
 ];
 
 export default {
+  middleware: 'auth_validator',
   data: () => ({
     interval: null,
     checked: false,

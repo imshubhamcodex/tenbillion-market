@@ -31,7 +31,7 @@
       color="white lighten-4"
     >
       <!-- <v-navigation-drawer permanent> -->
-      <v-list-item>
+      <v-list-item class="drawer_options">
         <v-list-item-content>
           <v-list-item-title
             id="account-title"
@@ -43,14 +43,14 @@
         </v-list-item-content>
       </v-list-item>
 
-      <v-list-item>
+      <v-list-item class="drawer_options">
         <v-list-item-content>
           <v-list-item-title class="title">Total Investment</v-list-item-title>
           <v-list-item-subtitle>₹ {{ totalAmount }}</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
 
-      <v-list-item>
+      <v-list-item class="drawer_options">
         <v-list-item-content>
           <v-list-item-title class="title">Return</v-list-item-title>
           <v-list-item-subtitle style="color: green"
@@ -60,7 +60,7 @@
         </v-list-item-content>
       </v-list-item>
 
-      <v-list-item>
+      <v-list-item class="drawer_options">
         <v-list-item-content>
           <v-list-item-title class="title" @click="changeCurrAmt()"
             >Current Value</v-list-item-title
@@ -71,7 +71,7 @@
         </v-list-item-content>
       </v-list-item>
 
-      <v-list-item>
+      <v-list-item class="drawer_options">
         <v-list-item-content>
           <v-list-item-title class="title">Next Month Target</v-list-item-title>
           <v-list-item-subtitle style="color: indigo"
@@ -84,7 +84,7 @@
         <v-btn color="primary" @click="openTimeLine()">Watch Timeline</v-btn>
       </v-list-item> -->
 
-      <v-divider></v-divider>
+      <v-divider class="drawer_options"></v-divider>
 
       <v-list dense nav v-if="rerenderUserList">
         <v-list-item
@@ -93,13 +93,16 @@
           link
           @click="selectedAccount(item.id)"
         >
-          <v-badge
-            color="green"
-            content="BIG BULL"
-            style="position: absolute; margin-top: -165px; margin-left: 140px"
-            v-show="bigbull(item.total)"
-          ></v-badge>
           <v-list class="people" outlined style="margin-bottom: 30px">
+            <span>
+              <v-badge
+                color="green"
+                content="BIG BULL"
+                style="position: absolute; top: 22px; right: 70px"
+                v-show="bigbull(item.total)"
+              ></v-badge>
+            </span>
+
             <v-list-item class="px-2">
               <v-list-item-avatar>
                 <v-img :src="sendImgURL(item.text)"></v-img>
@@ -164,11 +167,58 @@
           </v-list>
         </v-list-item>
       </v-list>
-      <div style="margin: 20px auto; display: block; width: 90%">
+
+      <v-list dense nav class="drawer_options">
+        <v-list-item>
+          <!-- graph-->
+          <h3
+            id="loading-pie"
+            style="
+              position: absolute;
+              transform: translate(-50%, -50%);
+              left: 50%;
+              top: 50%;
+            "
+          >
+            Loading curve..⏳
+          </h3>
+          <h5
+            style="
+              position: absolute;
+              transform: translate(-50%);
+              left: 50%;
+              bottom:-30px
+            "
+          >
+            Amount contributed
+          </h5>
+          <canvas id="myChartPie" height="300" width="300"></canvas>
+          <br />
+        </v-list-item>
+      </v-list>
+
+      <br />
+      <br />
+      <div
+        class="drawer_options"
+        style="
+          margin-top: 20px;
+          margin-bottom: 10px;
+          display: block;
+          width: 100%;
+          bottom: 0;
+          position: absolute;
+        "
+      >
         <v-btn
-          color="primary"
-          rounded
-          style="width: 100%; margin-bottom: 10px"
+          color="cyan"
+          style="
+            width: 96%;
+            color: white;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+          "
           @click="logout()"
           >Log Out</v-btn
         >
@@ -188,6 +238,28 @@
 
             <v-container v-if="!showCalenderAll && showCards">
               <v-card
+                class="tiles"
+                style="position: relative; padding-top: 20px"
+              >
+                <div class="text-center">
+                  <v-progress-circular
+                    :rotate="360"
+                    :size="200"
+                    :width="16"
+                    :value="overallProgress"
+                    color="cyan"
+                  >
+                    <span style="font-weight: bold"
+                      >{{ overallProgress }} % Done</span
+                    >
+                  </v-progress-circular>
+                </div>
+                <v-card-title class="title"> Overall Progress </v-card-title>
+              </v-card>
+              <br />
+
+              <v-card
+                class="tiles"
                 @click="showUnverifiedRecipts()"
                 style="position: relative"
               >
@@ -205,7 +277,7 @@
                 </v-badge>
               </v-card>
               <br />
-              <v-card @click="openTimeLine()">
+              <v-card class="tiles" @click="openTimeLine()">
                 <v-img
                   :src="require('@/assets/text.png')"
                   height="250"
@@ -214,7 +286,7 @@
                 <v-card-title class="title"> SIP Calculator </v-card-title>
               </v-card>
               <br />
-              <v-card @click="gotoNotes()">
+              <v-card class="tiles" @click="gotoNotes()">
                 <v-img
                   :src="require('@/assets/notes.png')"
                   height="250"
@@ -223,7 +295,7 @@
                 <v-card-title class="title">Author's Notes </v-card-title>
               </v-card>
               <br />
-              <v-card @click="gotoTandC()">
+              <v-card class="tiles" @click="gotoTandC()">
                 <v-img
                   :src="require('@/assets/tandc.png')"
                   height="250"
@@ -232,6 +304,23 @@
                 <v-card-title class="title">Terms and Conditions </v-card-title>
               </v-card>
             </v-container>
+
+            <v-list-item id="curve">
+              <!-- graph-->
+              <h3
+                id="loading-curve"
+                style="
+                  position: absolute;
+                  transform: translate(-50%, -50%);
+                  left: 50%;
+                  top: 50%;
+                "
+              >
+                Loading curve..⏳
+              </h3>
+              <canvas id="myChart"></canvas>
+              <br />
+            </v-list-item>
 
             <v-container
               style="width: 100%; padding: 0;float left;"
@@ -255,6 +344,7 @@
               <recipts v-bind:info="trans" />
             </v-list-item>
 
+            <!-- Search -->
             <template>
               <v-row justify="center">
                 <v-dialog
@@ -370,6 +460,7 @@ import recipts from '../../components/recipts'
 import unverified from '../../components/unverified'
 import Unverified from '../../components/unverified.vue'
 export default {
+  middleware: 'auth_validator',
   components: {
     formInput,
     recipts,
@@ -406,6 +497,7 @@ export default {
     headingsub2: 'Billionaire',
     no_of_unverifiedPayments: 0,
     latestDateArr: [],
+    overallProgress: 0,
     name: [
       {
         text: 'SHUBHAM KUMAR',
@@ -565,7 +657,7 @@ export default {
       this.userUID = this.items[id].uid
       this.email = this.items[id].email
       this.drawer = false
-      this.forceRerender();
+      this.forceRerender()
 
       for (let i = 0; i < this.items.length; i++) {
         if (this.items[i].id == id) {
@@ -701,6 +793,12 @@ export default {
             console.log(error.message)
           })
       }
+
+      // over all progress
+      this.overallProgress = (parseInt(this.totalAmount) * 100) / 5000000000
+
+      //Amount contribution
+      this.amountContribution()
 
       // to set tandc
 
@@ -844,8 +942,87 @@ export default {
         this.showpaymentDue(arrMail[k])
       }
     },
+    tilesAnimi() {
+      let tl = gsap.timeline()
+      tl.from(
+        '.tiles',
+        {
+          y: 60,
+          opacity: 0,
+          duration: 0.3,
+          ease: 'easeInOut',
+          stagger: 0.1,
+        },
+        '+=0.5'
+      )
+    },
+    generateGraph(bulkData) {
+      let xcord = []
+      let ycord = []
+
+      for (let i = 0; i < bulkData.length && 30; i++) {
+        let ele = bulkData[i]
+        let month = ele.date.toString().substring(4, 7)
+        let year = ele.date.toString().substring(11, 15)
+        xcord.push(month + ' ' + year)
+        ycord.push(ele.amount)
+      }
+
+      const labels = xcord.reverse()
+      const data = {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Investment Trend',
+            data: ycord.reverse(),
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1,
+          },
+        ],
+      }
+      const config = {
+        type: 'line',
+        data: data,
+      }
+
+      document.getElementById('loading-curve').style.display = 'none'
+      new Chart(document.getElementById('myChart'), config)
+    },
+    amountContribution() {
+      let amounts = []
+      this.items.forEach((ele) => {
+        amounts.push(Number(ele.regular) + Number(ele.extra))
+      })
+      const data = {
+        labels: ['Alok Kumar', 'Shubham Kumar', 'Manish Kumar', 'Sunny Kumar'],
+        datasets: [
+          {
+            label: 'Amount Contributed',
+            data: amounts,
+            backgroundColor: [
+              'rgb(255, 99, 132)',
+              'rgb(54, 162, 235)',
+              'rgb(255, 205, 86)',
+              'green',
+            ],
+            hoverOffset: 4,
+          },
+        ],
+      }
+      const config = {
+        type: 'pie',
+        data: data,
+        responsive: false,
+        maintainAspectRatio: false,
+      }
+
+      document.getElementById('loading-pie').style.display = 'none'
+      new Chart(document.getElementById('myChartPie'), config)
+    },
   },
   async mounted() {
+    this.tilesAnimi()
     await this.$fireStore
       .collection('currentVal')
       .doc('amt')
@@ -861,6 +1038,7 @@ export default {
   },
   watch: {
     selectedUser: async function () {
+      document.getElementById('curve').style.display = 'block'
       this.transID = []
       this.prevTrans = []
       await this.$fireStore
@@ -876,7 +1054,7 @@ export default {
 
       for (let i = 0; i < this.transID.length; i++) {
         if (this.transID[i].id != 'info') {
-          this.$fireStore
+          await this.$fireStore
             .collection(this.email)
             .doc(this.transID[i].id)
             .get()
@@ -898,12 +1076,34 @@ export default {
             })
         }
       }
+      this.generateGraph(this.prevTrans)
+    },
+    drawer: function () {
+      if (this.drawer) {
+        let tl = gsap.timeline()
+        tl.from(
+          '.drawer_options',
+          {
+            y: -20,
+            opacity: 0,
+            duration: 0.2,
+            ease: 'power4',
+            stagger: 0.1,
+          },
+          '+=0.3'
+        )
+      } else {
+        if (this.rerenderUserList) this.showAccounts()
+      }
     },
   },
 }
 </script>
 
 <style>
+#curve {
+  display: none;
+}
 #nav-bar-main {
   z-index: 999;
 }

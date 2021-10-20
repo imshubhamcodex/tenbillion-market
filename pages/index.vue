@@ -1,25 +1,60 @@
 <template>
-<v-app>
-  <v-alert v-if="err" type="error" id="err-box" style="position:absolute;top:2%;width:90%;left:50%;transform:translateX(-50%);">
-    Invalid Credentials
-  </v-alert>
-  <div id="login">
-    <div id="description">
-      <h1>Login</h1>
-      <p>Beware three(3) wrong attemps may block this portal for 24 hr. </p>
-    </div>
-    <div id="form">
-      <form @submit.prevent="doLogin">
-        <label for="email">Email</label>
-        <input type="text" v-model="email" placeholder="me@gmail.com" autocomplete="off">
+  <v-app>
+    <v-alert
+      v-if="err"
+      type="error"
+      id="err-box"
+      style="
+        position: absolute;
+        top: 2%;
+        width: 90%;
+        left: 50%;
+        transform: translateX(-50%);
+      "
+    >
+      Invalid Credentials
+    </v-alert>
+    <div id="login">
+      <div id="description">
+        <h1>Login</h1>
+        <p>Beware three(3) wrong attemps may block this portal for 24 hr.</p>
+      </div>
+      <div id="form">
+        <form @submit.prevent="doLogin">
+          <label for="email">Email</label>
+          <input
+            type="text"
+            v-model="email"
+            placeholder="me@gmail.com"
+            autocomplete="off"
+          />
 
-        <label for="password">Password <v-icon style="float:right;background:none;color:white;width:5px;height:5px;margin-top:5px;" @click="hidePassword = !hidePassword"> mdi-eye</v-icon></label>&nbsp;
-        <input :type="passwordType" v-model="password" placeholder="**********">
-        <button type="submit" style="color:black">Log in</button>
-      </form>
+          <label for="password"
+            >Password
+            <v-icon
+              style="
+                float: right;
+                background: none;
+                color: white;
+                width: 5px;
+                height: 5px;
+                margin-top: 5px;
+              "
+              @click="hidePassword = !hidePassword"
+            >
+              mdi-eye</v-icon
+            ></label
+          >&nbsp;
+          <input
+            :type="passwordType"
+            v-model="password"
+            placeholder="**********"
+          />
+          <button type="submit" style="color: black">Log in</button>
+        </form>
+      </div>
     </div>
-  </div>
-</v-app>
+  </v-app>
 </template>
 
 <script>
@@ -38,43 +73,52 @@ export default {
     },
     passwordIcon() {
       return this.hidePassword ? 'fa-eye' : 'fa-eye-slash'
-    }
+    },
   },
   methods: {
     async doLogin() {
-      await this.$fireAuth.signInWithEmailAndPassword(this.email, this.password)
+      await this.$fireAuth
+        .signInWithEmailAndPassword(this.email, this.password)
         .then(async () => {
+          console.log('Authorised')
+          localStorage.setItem('account-email', this.email)
+          localStorage.setItem('account-password', this.password)
 
-          console.log('Authorised');
-          localStorage.setItem("account-email", this.email);
-          localStorage.setItem("account-password", this.password);
-          // this.$store.commit('authorised');
-
-          this.$router.push('/home/index');
-
+          this.$store.commit('authorised')
+          this.$router.push('/home/index')
         })
         .catch((error) => {
           // Handle Errors here.
-          var errorCode = error.code;
-          var errorMessage = error.message;
+          let errorCode = error.code
           console.log(errorCode)
           // ...
-          this.err = true;
+          this.err = true
           setTimeout(() => {
-            this.err = false;
+            this.err = false
           }, 3000)
-
-        });
-    }
+        })
+    },
   },
   mounted() {
-    if (localStorage.getItem("account-email") !== null) {
-      this.email = localStorage.getItem("account-email");
-      this.password = localStorage.getItem("account-password");
-      this.doLogin();
+    if (localStorage.getItem('account-email') !== null) {
+      this.email = localStorage.getItem('account-email')
+      this.password = localStorage.getItem('account-password')
+      this.doLogin()
     }
+  },
+  created() {
+    let head = document.getElementsByTagName('head')[0]
+    let script = document.createElement('script')
+    script.type = 'text/javascript'
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js'
+    head.appendChild(script)
 
-  }
+    let script1 = document.createElement('script')
+    script1.type = 'text/javascript'
+    script1.src = "https://cdn.jsdelivr.net/npm/chart.js@2.8.0"
+    head.appendChild(script1)
+    
+  },
 }
 </script>
 

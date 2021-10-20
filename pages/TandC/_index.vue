@@ -9,9 +9,9 @@
         </v-row>
       </v-alert>
       <div v-for="(term, index) in terms" :key="index">
-        <v-alert icon="mdi-shield-lock-outline" prominent text type="info">
+        <v-alert class="alert" :icon="indexing(index)" prominent text type="info">
           <v-row align="center">
-            <v-col class="grow">
+            <v-col class="grow" style="color: black">
               {{ term.text }}
             </v-col>
             <v-col class="shrink">
@@ -55,11 +55,11 @@
               label="Your UID"
               clearable
               hint="This field is requried"
-              type="text"
+              type="password"
             ></v-text-field>
           </v-card-text>
           <v-card-actions class="justify-end">
-            <v-btn text @click="fun()">Go ahead</v-btn>
+            <v-btn @click="fun()">Validate</v-btn>
           </v-card-actions>
         </v-card>
       </template>
@@ -69,6 +69,7 @@
 
 <script>
 export default {
+  middleware: 'auth_validator',
   data() {
     return {
       dialog: true,
@@ -79,14 +80,15 @@ export default {
       terms: [
         {
           text:
-            '10 year lock-in period (Effective from 01/04/2021 Till 31/03/2031)',
+            'Ten year lock-in period (Effective from 01/04/2021 Till 31/03/2031)',
           agree: 'Agree',
           show: true,
           date: 'Today',
         },
 
         {
-          text: 'Any type of withdrawal within lock-in period is not acceptable',
+          text:
+            'Any type of withdrawal within lock-in period is not acceptable',
           agree: 'Agree',
           show: true,
           date: 'Today',
@@ -128,7 +130,7 @@ export default {
         },
         {
           text:
-            'All issues and Future strategies are discussed in our MGM (Monthly General Meeting) i.e. scheduled on Last day of every month.',
+            'All issues and Future strategies are discussed in our MGM (Monthly General Meeting) i.e. scheduled on Last week of every month.',
           agree: 'Agree',
           show: true,
           date: 'Today',
@@ -146,12 +148,26 @@ export default {
     }
   },
   methods: {
+    indexing(index) {
+      return 'mdi-numeric-' + (index+1)
+    },
     async fun() {
       if (this.email !== '' && this.uid !== '') {
         await this.getTandC()
 
         if (this.validEmail) {
-          this.dialog = false
+          this.dialog = false;
+          let tl = gsap.timeline()
+        tl.from(
+          '.alert',
+          {
+            y: -30,
+            opacity: 0,
+            duration: 0.4,
+            ease: 'power4',
+            stagger: 0.1,
+          },
+        )
         } else {
           console.log('hi')
         }

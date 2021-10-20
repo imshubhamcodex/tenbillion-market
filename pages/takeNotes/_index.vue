@@ -140,6 +140,7 @@ import note from "../../components/notesCard";
 import { firebase } from "@firebase/app";
 import "firebase/firestore";
 export default {
+  middleware: 'auth_validator',
   components: {
     note
   },

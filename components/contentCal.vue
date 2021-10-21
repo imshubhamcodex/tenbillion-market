@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h3 style="display:block;text-align:center;margin-bottom:10px;">{{user.split('-')[2]}}</h3>
     <template>
       <div>
         <v-progress-circular
@@ -346,7 +347,7 @@ export default {
         .doc('info')
         .get()
         .then((res) => {
-          console.log()
+          // console.log()
           this.extra = res.data().extra
           this.regular = res.data().regular
           this.total = res.data().total
@@ -364,8 +365,8 @@ export default {
     } else {
       document.getElementById('continue-btn').classList.remove('v-btn--disabled')
     }
-    console.log(this.user)
-    console.log(this.uid)
+    // console.log(this.user)
+    // console.log(this.uid)
 
     let arrUser = this.user.split('-')
 

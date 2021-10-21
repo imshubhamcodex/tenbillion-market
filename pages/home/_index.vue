@@ -97,8 +97,8 @@
             <span>
               <v-badge
                 color="green"
-                content="BIG BULL"
-                style="position: absolute; top: 22px; right: 70px"
+                content="BIG BULL 🐮"
+                style="position: absolute; top: 25px; right: 93px"
                 v-show="bigbull(item.total)"
               ></v-badge>
             </span>
@@ -169,7 +169,7 @@
       </v-list>
 
       <v-list dense nav class="drawer_options">
-        <v-list-item style="padding-bottom:50px">
+        <v-list-item style="padding-bottom: 50px">
           <!-- graph-->
           <h3
             id="loading-pie"
@@ -187,7 +187,7 @@
               position: absolute;
               transform: translate(-50%);
               left: 50%;
-              bottom:20px
+              bottom: 20px;
             "
           >
             Amount contributed
@@ -795,7 +795,8 @@ export default {
       }
 
       // over all progress
-      this.overallProgress = (parseInt(this.totalAmount) * 100) / 5000000000
+      this.overallProgress =
+        (parseInt(this.CurrentVal.replace(/,/g, '')) * 100) / 500000000
 
       //Amount contribution
       this.amountContribution()
@@ -947,9 +948,9 @@ export default {
       tl.from(
         '.tiles',
         {
-          y: 60,
+          y: 70,
           opacity: 0,
-          duration: 0.3,
+          duration: 0.5,
           ease: 'easeInOut',
           stagger: 0.1,
         },
@@ -975,9 +976,9 @@ export default {
           {
             label: 'Investment Trend',
             data: ycord.reverse(),
-            fill: false,
+            fill: true,
             borderColor: 'rgb(75, 192, 192)',
-            tension: 0.1,
+            tension: 0.4,
           },
         ],
       }
@@ -986,9 +987,9 @@ export default {
         data: data,
       }
 
-      document.getElementById('loading-curve').style.display = 'none'
-      document.getElementById('myChart').style.display = 'block'
+      document.getElementById('loading-curve').style.display = 'none' // hide placeholder
       new Chart(document.getElementById('myChart'), config)
+      document.getElementById('myChart').style.display = 'block' // show chart
     },
     amountContribution() {
       let amounts = []
@@ -1039,9 +1040,9 @@ export default {
   },
   watch: {
     selectedUser: async function () {
-      document.getElementById('myChart').style.display = 'none'
+      document.getElementById('myChart').style.display = 'none' // hide chart
       document.getElementById('curve').style.display = 'block'
-      document.getElementById('loading-curve').style.display = 'block'
+      document.getElementById('loading-curve').style.display = 'block' // show placeholder
       this.transID = []
       this.prevTrans = []
       await this.$fireStore

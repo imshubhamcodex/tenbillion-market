@@ -1,6 +1,8 @@
 <template>
   <div>
-    <h3 style="display:block;text-align:center;margin-bottom:10px;">{{user.split('-')[2]}}</h3>
+    <h3 style="display: block; text-align: center; margin-bottom: 10px">
+      {{ user.split('-')[2] }}
+    </h3>
     <template>
       <div>
         <v-progress-circular
@@ -105,6 +107,7 @@
               label="UID"
               autocomplete="off"
               outlined
+              type="password"
               v-model="uid"
               required
             ></v-text-field>
@@ -165,9 +168,11 @@ export default {
       '3000',
       '4000',
       '5000',
+      '6000',
       '7000',
       '10000',
       '12000',
+      '15000',
     ],
     rules: [
       (value) =>
@@ -207,7 +212,8 @@ export default {
           this.overlay = true
           this.progressBar = true
 
-          let paymentType
+          let paymentType = ''
+
           if (this.radioGroup == 1) {
             paymentType = 'extra'
             this.extra = parseInt(this.extra) + parseInt(this.money)
@@ -335,7 +341,7 @@ export default {
     },
   },
   watch: {
-    user: async function () {
+    email: async function () {
       let userInfo = this.user.toString().split('-')
       this.email = userInfo[1]
       this.uid = userInfo[0]
@@ -347,7 +353,6 @@ export default {
         .doc('info')
         .get()
         .then((res) => {
-          // console.log()
           this.extra = res.data().extra
           this.regular = res.data().regular
           this.total = res.data().total
@@ -360,10 +365,13 @@ export default {
   },
   async mounted() {
     this.uid = this.user.toString().split('-')[0]
+    this.email = this.user.toString().split('-')[1]
     if (this.uid === null) {
       document.getElementById('continue-btn').classList += ' v-btn--disabled'
     } else {
-      document.getElementById('continue-btn').classList.remove('v-btn--disabled')
+      document
+        .getElementById('continue-btn')
+        .classList.remove('v-btn--disabled')
     }
     // console.log(this.user)
     // console.log(this.uid)

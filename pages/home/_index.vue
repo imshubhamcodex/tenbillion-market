@@ -187,12 +187,20 @@
               position: absolute;
               transform: translate(-50%);
               left: 50%;
-              bottom: 20px;
+              bottom: 0px;
             "
           >
             Amount contributed
           </h5>
           <canvas id="myChartPie" height="300" width="300"></canvas>
+          <br />
+        </v-list-item>
+      </v-list>
+
+      <v-list dense nav class="drawer_options">
+        <v-list-item style="padding-bottom: 10px; margin-top: 20px">
+          <!-- graph-->
+          <canvas id="overallinv" height="400" width="400"></canvas>
           <br />
         </v-list-item>
       </v-list>
@@ -319,6 +327,17 @@
                 Loading curve..⏳
               </h3>
               <canvas id="myChart"></canvas>
+              <div
+                id="overlay"
+                style="
+                  height: 100%;
+                  width: 93%;
+                  background: rgba(0, 0, 0, 0);
+                  z-index: 99;
+                  position: absolute;
+                  top: 0;
+                "
+              ></div>
               <br />
             </v-list-item>
 
@@ -976,7 +995,7 @@ export default {
           {
             label: 'Investment Trend',
             data: ycord.reverse(),
-            fill: true,
+            fill: false,
             borderColor: 'rgb(75, 192, 192)',
             tension: 0.4,
           },
@@ -985,6 +1004,9 @@ export default {
       const config = {
         type: 'line',
         data: data,
+        options: {
+          responsive: true,
+        },
       }
 
       document.getElementById('loading-curve').style.display = 'none' // hide placeholder
@@ -1037,6 +1059,60 @@ export default {
 
     this.getUnverifiedPayments()
     this.downloadImageURL()
+
+    // Calculating overall investement trend
+    let last_one_year_data = []
+    let xcord = []
+    let ycord = []
+    for (let i = 0; i < this.allUser.length; i++) {
+      let user = this.allUser[i].id
+      const userInfo = this.$fireStore
+        .collection(user)
+        .orderBy('date', 'desc')
+        .limit(6)
+      const snapshot = await userInfo.get()
+      snapshot.forEach((doc) => {
+        last_one_year_data.push(doc.data())
+      })
+    }
+
+    last_one_year_data.sort((a, b) =>
+      a.date['seconds'] > b.date['seconds']
+        ? 1
+        : b.date['seconds'] > a.date['seconds']
+        ? -1
+        : 0
+    )
+    last_one_year_data.forEach((ele) => {
+      xcord.push(ele.date.toDate().toString().substring(4, 15))
+      ycord.push(ele.amount)
+    })
+
+    const labels = xcord
+    const data = {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Overall Investment Trend',
+          data: ycord,
+          backgroundColor: 'green',
+          fill: true,
+        },
+      ],
+    }
+    const config = {
+      type: 'bar',
+      data: data,
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      },
+    }
+
+    new Chart(document.getElementById('overallinv'), config)
   },
   watch: {
     selectedUser: async function () {
@@ -1108,6 +1184,9 @@ export default {
 #curve {
   display: none;
 }
+#overlay {
+  display: none;
+}
 #nav-bar-main {
   z-index: 999;
 }
@@ -1135,6 +1214,9 @@ export default {
 @media (max-width: 420px) {
   .from-date {
     margin-left: 65px;
+  }
+  #overlay {
+    display: block;
   }
 }
 

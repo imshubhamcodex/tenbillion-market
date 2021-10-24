@@ -106,19 +106,6 @@ export default {
       this.doLogin()
     }
   },
-  created() {
-    let head = document.getElementsByTagName('head')[0]
-    let script = document.createElement('script')
-    script.type = 'text/javascript'
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js'
-    head.appendChild(script)
-
-    let script1 = document.createElement('script')
-    script1.type = 'text/javascript'
-    script1.src = "https://cdn.jsdelivr.net/npm/chart.js@2.8.0"
-    head.appendChild(script1)
-    
-  },
 }
 </script>
 

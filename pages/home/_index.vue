@@ -205,6 +205,14 @@
         </v-list-item>
       </v-list>
 
+      <v-list dense nav class="drawer_options">
+        <v-list-item style="padding-bottom: 10px; margin-top: 10px">
+          <!-- graph-->
+          <canvas id="overallinvbar" height="400" width="400"></canvas>
+          <br />
+        </v-list-item>
+      </v-list>
+
       <br />
       <br />
       <div
@@ -255,7 +263,7 @@
                     :size="200"
                     :width="16"
                     :value="overallProgress"
-                    color="cyan"
+                    color="green"
                   >
                     <span style="font-weight: bold"
                       >{{ overallProgress }} % Done</span
@@ -1044,6 +1052,26 @@ export default {
       document.getElementById('loading-pie').style.display = 'none'
       new Chart(document.getElementById('myChartPie'), config)
     },
+    plotBar(xcord,ycord){
+      const labels = xcord
+    const data = {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Overall Investment Trend',
+          data: ycord,
+          backgroundColor: 'green',
+          fill: false,
+        },
+      ],
+    }
+    const config = {
+      type: 'bar',
+      data: data,
+    }
+
+    new Chart(document.getElementById('overallinvbar'), config)
+    }
   },
   async mounted() {
     this.tilesAnimi()
@@ -1060,7 +1088,7 @@ export default {
     this.getUnverifiedPayments()
     this.downloadImageURL()
 
-    // Calculating overall investement trend
+    // Calculating overall investment trend
     let last_one_year_data = []
     let xcord = []
     let ycord = []
@@ -1069,10 +1097,16 @@ export default {
       const userInfo = this.$fireStore
         .collection(user)
         .orderBy('date', 'desc')
-        .limit(6)
+        .limit(12)
       const snapshot = await userInfo.get()
       snapshot.forEach((doc) => {
-        last_one_year_data.push(doc.data())
+        let month_and_year =
+          doc.data().date.toDate().toString().substring(4, 7) +
+          ' ' +
+          doc.data().date.toDate().toString().substring(11, 15)
+        let obj = doc.data()
+        obj.month_and_year = month_and_year
+        last_one_year_data.push(obj)
       })
     }
 
@@ -1083,10 +1117,27 @@ export default {
         ? -1
         : 0
     )
-    last_one_year_data.forEach((ele) => {
-      xcord.push(ele.date.toDate().toString().substring(4, 15))
-      ycord.push(ele.amount)
-    })
+    // last_one_year_data.forEach((ele) => {
+    //   xcord.push(ele.date.toDate().toString().substring(4, 15))
+    //   ycord.push(ele.amount)
+    // })
+    // let data_sum = []
+    for (let i = 0; i < last_one_year_data.length; i++) {
+      let amount = Number(last_one_year_data[i].amount)
+      let data = last_one_year_data[i].month_and_year
+      for (let j = i + 1; j < last_one_year_data.length; j++) {
+        let set = last_one_year_data[j].month_and_year
+
+        if (data === set && data !== null && set !== null) {
+          amount += Number(last_one_year_data[j].amount)
+          last_one_year_data[j].month_and_year = null
+        }
+      }
+      if (last_one_year_data[i].month_and_year != null) {
+        xcord.push(last_one_year_data[i].month_and_year)
+        ycord.push(amount)
+      }
+    }
 
     const labels = xcord
     const data = {
@@ -1095,24 +1146,19 @@ export default {
         {
           label: 'Overall Investment Trend',
           data: ycord,
-          backgroundColor: 'green',
-          fill: true,
+          borderColor: 'red',
+          fill: false,
         },
       ],
     }
     const config = {
-      type: 'bar',
+      type: 'line',
       data: data,
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-        },
-      },
     }
 
     new Chart(document.getElementById('overallinv'), config)
+
+    this.plotBar(xcord,ycord)
   },
   watch: {
     selectedUser: async function () {
@@ -1181,6 +1227,38 @@ export default {
 </script>
 
 <style>
+.pace {
+  pointer-events: none;
+  user-select: none;
+  z-index: 2000;
+  position: fixed;
+  margin: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  border: 0px;
+  height: 1px;
+  overflow: hidden;
+  background: rgba(218, 211, 211, 0.767);
+  padding: 2px;
+}
+
+.pace .pace-progress {
+  box-sizing: border-box;
+  transform: translate3d(0, 0, 0);
+  max-width: 100%;
+  position: fixed;
+  z-index: 2000;
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 100%;
+  height: 100%;
+  width: 100%;
+  background: rgb(6, 231, 6);
+}
+
 #curve {
   display: none;
 }

@@ -53,10 +53,11 @@
       <v-list-item class="drawer_options">
         <v-list-item-content>
           <v-list-item-title class="title">Return</v-list-item-title>
-          <v-list-item-subtitle style="color: green"
+          <v-list-item-subtitle
+            :class="[returnPercentage > 0 ? 'green--text' : 'red--text']"
             >₹ {{ profitAmt }} ({{ returnPercentage }} % )
-            ▲</v-list-item-subtitle
-          >
+            <span v-if="returnPercentage > 0">▲</span> <span v-else>▼</span>
+          </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
 
@@ -65,7 +66,8 @@
           <v-list-item-title class="title" @click="changeCurrAmt()"
             >Current Value</v-list-item-title
           >
-          <v-list-item-subtitle style="color: green"
+          <v-list-item-subtitle
+            :class="[returnPercentage > 0 ? 'green--text' : 'red--text']"
             >₹ {{ CurrentVal }}</v-list-item-subtitle
           >
         </v-list-item-content>
@@ -74,7 +76,7 @@
       <v-list-item class="drawer_options">
         <v-list-item-content>
           <v-list-item-title class="title">Next Month Target</v-list-item-title>
-          <v-list-item-subtitle style="color: indigo"
+          <v-list-item-subtitle style="color: black"
             >₹ {{ CurrentVal * 0.1 }}</v-list-item-subtitle
           >
         </v-list-item-content>
@@ -114,7 +116,11 @@
                 <v-list-item-title class="title">
                   <v-list-item-title>{{ item.text }}</v-list-item-title>
                 </v-list-item-title>
-                <v-list-item-title>{{ item.email }}</v-list-item-title>
+                <v-list-item-title>{{
+                  item.email.length > 24
+                    ? item.email.substring(0, 24) + '...'
+                    : item.email
+                }}</v-list-item-title>
                 <v-divider></v-divider>
                 <v-list-item-title class="overline"
                   >Regular:: ₹ {{ item.regular }}</v-list-item-title
@@ -123,11 +129,15 @@
                   >Lumpsum:: ₹ {{ item.extra }}</v-list-item-title
                 >
 
-                <v-list-item-title class="overline" style="color: green"
+                <v-list-item-title
+                  class="overline"
+                  :class="[returnPercentage > 0 ? 'green--text' : 'red--text']"
                   >Return:: ₹ {{ item.returnAmt }}</v-list-item-title
                 >
 
-                <v-list-item-title class="overline" style="color: green"
+                <v-list-item-title
+                  class="overline"
+                  :class="[returnPercentage > 0 ? 'green--text' : 'red--text']"
                   >Curr. value:: ₹
                   {{ item.total + item.returnAmt }}</v-list-item-title
                 >
@@ -1052,26 +1062,26 @@ export default {
       document.getElementById('loading-pie').style.display = 'none'
       new Chart(document.getElementById('myChartPie'), config)
     },
-    plotBar(xcord,ycord){
+    plotBar(xcord, ycord) {
       const labels = xcord
-    const data = {
-      labels: labels,
-      datasets: [
-        {
-          label: 'Overall Investment Trend',
-          data: ycord,
-          backgroundColor: 'green',
-          fill: false,
-        },
-      ],
-    }
-    const config = {
-      type: 'bar',
-      data: data,
-    }
+      const data = {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Overall Investment Trend',
+            data: ycord,
+            backgroundColor: 'green',
+            fill: false,
+          },
+        ],
+      }
+      const config = {
+        type: 'bar',
+        data: data,
+      }
 
-    new Chart(document.getElementById('overallinvbar'), config)
-    }
+      new Chart(document.getElementById('overallinvbar'), config)
+    },
   },
   async mounted() {
     this.tilesAnimi()
@@ -1158,7 +1168,7 @@ export default {
 
     new Chart(document.getElementById('overallinv'), config)
 
-    this.plotBar(xcord,ycord)
+    this.plotBar(xcord, ycord)
   },
   watch: {
     selectedUser: async function () {
@@ -1227,6 +1237,13 @@ export default {
 </script>
 
 <style>
+.green--text {
+  color: green;
+}
+
+.red--text {
+  color: red;
+}
 .pace {
   pointer-events: none;
   user-select: none;

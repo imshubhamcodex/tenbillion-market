@@ -556,6 +556,11 @@ export default {
         url:
           'https://firebasestorage.googleapis.com/v0/b/data-auth-87e83.appspot.com/o/userImage%2FSUNNY%20KUMAR.png?alt=media&token=2a2f5901-0f05-4d1d-86ff-c2ff5751139f',
       },
+      {
+        text: 'SONY KUMARI',
+        url:
+          'https://firebasestorage.googleapis.com/v0/b/data-auth-87e83.appspot.com/o/userImage%2FSONY%20KUMARI.png?alt=media&token=640e4994-360a-402d-8171-139f470e7866',
+      },
     ], // ALL USER NAME INFO.TEXT
   }),
   methods: {
@@ -584,6 +589,7 @@ export default {
       for (let i = 0; i < this.items.length; i++) {
         if (this.items[i].email == email) {
           index = i
+          if (this.items[i].total === 0) return // if new user then do nothig
           break
         }
       }

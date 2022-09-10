@@ -37,6 +37,7 @@
             id="account-title"
             class="title"
             @click="showAccounts()"
+            style="cursor: pointer"
             >Active Accounts ▼</v-list-item-title
           >
           <v-list-item-subtitle>{{ allUser.length }}</v-list-item-subtitle>
@@ -46,7 +47,16 @@
       <v-list-item class="drawer_options">
         <v-list-item-content>
           <v-list-item-title class="title">Total Investment</v-list-item-title>
-          <v-list-item-subtitle>₹ {{ totalAmount }}</v-list-item-subtitle>
+          <v-list-item-subtitle
+            >₹
+            {{
+              totalAmount !== 0
+                ? totalAmount.toString().length % 3 !== 0
+                  ? ('0' + totalAmount).match(/.{3}/g).join(',')
+                  : (totalAmount + '').match(/.{3}/g).join(',')
+                : 'Calculating...'
+            }}</v-list-item-subtitle
+          >
         </v-list-item-content>
       </v-list-item>
 
@@ -55,7 +65,15 @@
           <v-list-item-title class="title">Return</v-list-item-title>
           <v-list-item-subtitle
             :class="[returnPercentage > 0 ? 'green--text' : 'red--text']"
-            >₹ {{ profitAmt }} ({{ returnPercentage }} % )
+            >₹
+            {{
+              profitAmt !== 0
+                ? profitAmt.toString().length % 3 !== 0
+                  ? ('0' + profitAmt).match(/.{3}/g).join(',')
+                  : (profitAmt + '').match(/.{3}/g).join(',')
+                : 'Calculating...'
+            }}
+            ({{ returnPercentage }} % )
             <span v-if="returnPercentage > 0">▲</span> <span v-else>▼</span>
           </v-list-item-subtitle>
         </v-list-item-content>
@@ -68,7 +86,14 @@
           >
           <v-list-item-subtitle
             :class="[returnPercentage > 0 ? 'green--text' : 'red--text']"
-            >₹ {{ CurrentVal }}</v-list-item-subtitle
+            >₹
+            {{
+              CurrentVal !== 0
+                ? CurrentVal.toString().length % 3 !== 0
+                  ? ('0' + CurrentVal).match(/.{3}/g).join(',')
+                  : (CurrentVal + '').match(/.{3}/g).join(',')
+                : 'Calculating...'
+            }}</v-list-item-subtitle
           >
         </v-list-item-content>
       </v-list-item>
@@ -77,7 +102,14 @@
         <v-list-item-content>
           <v-list-item-title class="title">Next Month Target</v-list-item-title>
           <v-list-item-subtitle style="color: black"
-            >₹ {{ CurrentVal * 0.1 }}</v-list-item-subtitle
+            >₹
+            {{
+              CurrentVal !== 0
+                ? (CurrentVal * 0.1).toString().length % 3 !== 0
+                  ? ('0' + CurrentVal * 0.1).match(/.{3}/g).join(',')
+                  : (CurrentVal * 0.1).toString().match(/.{3}/g).join(',')
+                : 'Calculating...'
+            }}</v-list-item-subtitle
           >
         </v-list-item-content>
       </v-list-item>
@@ -104,6 +136,14 @@
                 v-show="bigbull(item.total)"
               ></v-badge>
             </span>
+
+            <v-icon
+              color="red"
+              style="position: absolute; top: 30px; right: 20px; z-index: 99"
+              v-if="!isVerify(item.id)"
+            >
+              mdi-cash-clock
+            </v-icon>
 
             <v-list-item class="px-2">
               <v-list-item-avatar>
@@ -267,6 +307,20 @@
                 class="tiles"
                 style="position: relative; padding-top: 20px"
               >
+                <v-chip-group
+                  mandatory
+                  active-class="primary--text"
+                  class="ml-2 mb-4"
+                >
+                  <v-chip
+                    v-for="(milestone, index) in milestones"
+                    :key="milestone"
+                    @click="filterByMilestone(index)"
+                  >
+                    {{ milestone }}
+                  </v-chip>
+                </v-chip-group>
+
                 <div class="text-center">
                   <v-progress-circular
                     :rotate="360"
@@ -275,60 +329,78 @@
                     :value="overallProgress"
                     color="green"
                   >
-                    <span style="font-weight: bold"
-                      >{{ overallProgress }} % Done</span
-                    >
+                    <div>
+                      <p style="font-weight: bold">
+                        {{ overallProgress }} % Done
+                      </p>
+
+                      <p
+                        style="
+                          font-weight: light;
+                          font-size: 12px;
+                          color: grey;
+                          text-align: center;
+                        "
+                        class="mt-2"
+                      >
+                        ETA: {{ this.expected_months }} months from now
+                      </p>
+                    </div>
                   </v-progress-circular>
                 </div>
                 <v-card-title class="title"> Overall Progress </v-card-title>
               </v-card>
               <br />
-
-              <v-card
-                class="tiles"
-                @click="showUnverifiedRecipts()"
-                style="position: relative"
-              >
-                <v-img
-                  :src="require('@/assets/paid.png')"
-                  height="250"
-                  class="grey darken-4"
-                ></v-img>
-                <v-card-title class="title"> Unverified payments </v-card-title>
-                <v-badge
-                  color="red"
-                  :content="no_of_unverifiedPayments"
-                  style="position: absolute; top: 92%; right: 30%"
+              <div class="lower-cards">
+                <v-card
+                  class="tiles"
+                  @click="showUnverifiedRecipts()"
+                  style="position: relative"
                 >
-                </v-badge>
-              </v-card>
-              <br />
-              <v-card class="tiles" @click="openTimeLine()">
-                <v-img
-                  :src="require('@/assets/text.png')"
-                  height="250"
-                  class="grey darken-4"
-                ></v-img>
-                <v-card-title class="title"> SIP Calculator </v-card-title>
-              </v-card>
-              <br />
-              <v-card class="tiles" @click="gotoNotes()">
-                <v-img
-                  :src="require('@/assets/notes.png')"
-                  height="250"
-                  class="grey darken-4"
-                ></v-img>
-                <v-card-title class="title">Author's Notes </v-card-title>
-              </v-card>
-              <br />
-              <v-card class="tiles" @click="gotoTandC()">
-                <v-img
-                  :src="require('@/assets/tandc.png')"
-                  height="250"
-                  class="grey darken-4"
-                ></v-img>
-                <v-card-title class="title">Terms and Conditions </v-card-title>
-              </v-card>
+                  <v-img
+                    :src="require('@/assets/paid.png')"
+                    height="250"
+                    class="grey darken-4"
+                  ></v-img>
+                  <v-card-title class="title">
+                    Unverified payments
+                  </v-card-title>
+                  <v-badge
+                    color="red"
+                    :content="no_of_unverifiedPayments"
+                    style="position: absolute; top: 92%; right: 10%"
+                  >
+                  </v-badge>
+                </v-card>
+                <v-card class="tiles" @click="openTimeLine()">
+                  <v-img
+                    :src="require('@/assets/text.png')"
+                    height="250"
+                    class="grey darken-4"
+                  ></v-img>
+                  <v-card-title class="title"> SIP Calculator </v-card-title>
+                </v-card>
+
+                <v-card class="tiles" @click="gotoNotes()">
+                  <v-img
+                    :src="require('@/assets/notes.png')"
+                    height="250"
+                    class="grey darken-4"
+                  ></v-img>
+                  <v-card-title class="title">Author's Notes </v-card-title>
+                </v-card>
+                <v-card class="tiles" @click="gotoTandC()">
+                  <v-img
+                    :src="require('@/assets/tandc.png')"
+                    height="250"
+                    width="400"
+                    class="grey darken-4"
+                  ></v-img>
+                  <v-card-title class="title"
+                    >Terms and Conditions
+                  </v-card-title>
+                </v-card>
+              </div>
             </v-container>
 
             <v-list-item id="curve">
@@ -535,16 +607,26 @@ export default {
     no_of_unverifiedPayments: 0,
     latestDateArr: [],
     overallProgress: 0,
+    selectedMilestone: 1000000,
+    expected_months: 0,
+    milestones: [
+      'M1: 1 Million',
+      'M2: 2 Million',
+      'M3: 3 Million',
+      'M4: 4 Million',
+      'M5: 5 Million',
+      'M6: 10 Million',
+      'M7: 20 Million',
+      'M8: 30 Million',
+      'M9: 40 Million',
+      'M10: 50 Million',
+      'M11: 100 Million',
+    ],
     name: [
       {
         text: 'SHUBHAM KUMAR',
         url:
           'https://firebasestorage.googleapis.com/v0/b/data-auth-87e83.appspot.com/o/userImage%2FSHUBHAM%20KUMAR.png?alt=media&token=0d39a528-eca4-46f1-ab3d-f3cf4509dc41',
-      },
-      {
-        text: 'MANISH KUMAR',
-        url:
-          'https://firebasestorage.googleapis.com/v0/b/data-auth-87e83.appspot.com/o/userImage%2FMANISH%20KUMAR.png?alt=media&token=bb359d4b-79f9-48ab-b512-0e1f2a656dbd',
       },
       {
         text: 'ALOK KUMAR',
@@ -564,12 +646,65 @@ export default {
     ], // ALL USER NAME INFO.TEXT
   }),
   methods: {
+    async isVerify(id) {
+      let ID = this.allUser[id].id
+      await this.$fireStore
+        .collection(ID)
+        .orderBy('date', 'desc')
+        .limit(2)
+        .get()
+        .then((res) => {
+          console.log(res.docs[0].data())
+          if (res.docs.length === 1) return res.docs[0].data().verified
+          else if (res.docs.length === 2)
+            return res.docs[0].data().verified && res.docs[1].data().verified
+        })
+        .catch(function (error) {
+          console.log(error.message)
+        })
+    },
     forceRerender() {
       this.showCalenderAll = false
       this.$nextTick().then(() => {
         this.showCalenderAll = true
       })
     },
+    filterByMilestone(index) {
+      if (index === 0) {
+        this.selectedMilestone = 1000000
+      } else if (index === 1) {
+        this.selectedMilestone = 2000000
+      } else if (index === 2) {
+        this.selectedMilestone = 3000000
+      } else if (index === 3) {
+        this.selectedMilestone = 4000000
+      } else if (index === 4) {
+        this.selectedMilestone = 5000000
+      } else if (index === 5) {
+        this.selectedMilestone = 10000000
+      } else if (index === 6) {
+        this.selectedMilestone = 20000000
+      } else if (index === 7) {
+        this.selectedMilestone = 30000000
+      } else if (index === 8) {
+        this.selectedMilestone = 40000000
+      } else if (index === 9) {
+        this.selectedMilestone = 50000000
+      } else if (index === 10) {
+        this.selectedMilestone = 100000000
+      }
+      this.overallProgress =
+        (parseInt(this.CurrentVal.replace(/,/g, '')) * 100) /
+        this.selectedMilestone
+
+      let totalAmt = parseInt(this.CurrentVal.replace(/,/g, ''))
+      this.expected_months = 0
+      while (totalAmt < this.selectedMilestone) {
+        totalAmt = totalAmt + (totalAmt * 9) / 100
+        this.expected_months++
+      }
+    },
+
     showAccounts() {
       if (this.rerenderUserList) {
         this.rerenderUserList = false
@@ -804,7 +939,12 @@ export default {
         .collection('allUsers')
         .get()
         .then((res) => {
-          this.allUser = res.docs //it conatins all user id
+          console.log(
+            res.docs.filter((o) => o.id !== 'manishkumarsinghssm@gmail.com')
+          )
+          this.allUser = res.docs.filter(
+            (o) => o.id !== 'manishkumarsinghssm@gmail.com'
+          ) //it conatins all user id
         })
         .catch(function (error) {
           console.log(error.message)
@@ -839,7 +979,10 @@ export default {
 
       // over all progress
       this.overallProgress =
-        (parseInt(this.CurrentVal.replace(/,/g, '')) * 100) / 500000000
+        (parseInt(this.CurrentVal.replace(/,/g, '')) * 100) /
+        this.selectedMilestone
+
+      this.filterByMilestone(0)
 
       //Amount contribution
       this.amountContribution()
@@ -852,22 +995,24 @@ export default {
         .then((res) => {
           // let TandCArrLen = res.docs[0].data().TandC.length
           res.docs.forEach((ele) => {
-            let TandCArrLen = ele.data().TandC.length
-            let totalAccepted = ele.data().total
-            let i = this.items.findIndex((x) => x.email == ele.id)
+            if (ele.id !== 'manishkumarsinghssm@gmail.com') {
+              let TandCArrLen = ele.data().TandC.length
+              let totalAccepted = ele.data().total
+              let i = this.items.findIndex((x) => x.email == ele.id)
 
-            if (TandCArrLen == 9) {
-              this.items[i].acceptedTandC = 'Accepted all the T&C.'
-              this.items[i].isAccepted = true
-            } else {
-              if (totalAccepted == 0) {
-                this.items[i].acceptedTandC =
-                  'No T&C NOT accepted! (' + totalAccepted + '/' + 9 + ')'
+              if (TandCArrLen == 9) {
+                this.items[i].acceptedTandC = 'Accepted all the T&C.'
+                this.items[i].isAccepted = true
               } else {
-                this.items[i].acceptedTandC =
-                  'Few T&C NOT accepted! (' + totalAccepted + '/' + 9 + ')'
+                if (totalAccepted == 0) {
+                  this.items[i].acceptedTandC =
+                    'No T&C NOT accepted! (' + totalAccepted + '/' + 9 + ')'
+                } else {
+                  this.items[i].acceptedTandC =
+                    'Few T&C NOT accepted! (' + totalAccepted + '/' + 9 + ')'
+                }
+                this.items[i].isAccepted = false
               }
-              this.items[i].isAccepted = false
             }
           })
         })
@@ -1043,7 +1188,7 @@ export default {
         amounts.push(Number(ele.regular) + Number(ele.extra))
       })
       const data = {
-        labels: ['Alok Kumar', 'Shubham Kumar', 'Manish Kumar', 'Sunny Kumar'],
+        labels: ['Alok Kumar', 'Shubham Kumar', 'Sunny Kumar', 'Sony Kumari'],
         datasets: [
           {
             label: 'Amount Contributed',
@@ -1052,7 +1197,7 @@ export default {
               'rgb(255, 99, 132)',
               'rgb(54, 162, 235)',
               'rgb(255, 205, 86)',
-              'green',
+              'rgb(155, 99, 132)',
             ],
             hoverOffset: 4,
           },
@@ -1243,6 +1388,14 @@ export default {
 </script>
 
 <style>
+.lower-cards {
+  display: flex;
+  gap: 20px;
+  justify-content: space-around;
+}
+.lower-cards > div {
+  max-width: 250px;
+}
 .green--text {
   color: green;
 }
@@ -1318,6 +1471,13 @@ export default {
   }
   #overlay {
     display: block;
+  }
+  .lower-cards {
+    display: block;
+    max-width: 420px !important;
+  }
+  .lower-cards > div {
+    margin-bottom: 30px;
   }
 }
 
